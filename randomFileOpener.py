@@ -4,31 +4,90 @@
 
 """
 Designed for unix-like systems with python 3.X and BASH installed.
-Usage is self-explanatory.
-A work in progress...
+I developed this program so that I could get more enjoyment out of my own media libraries.
+The usage is self-explanatory.
+This is a work in progress...
 """
 
-from subprocess import call     # for passing commands to a sub-shell
-from random import choice       # for choosing a file at random
-from os import listdir          # for getting a list of files from a given directory
+import os
+from subprocess import run
+from random import choice
 
-choosing = True
-repeat = False
+possibilities = []
 
-while choosing == True:     # while we are still running the program
-    if repeat == False:     # if we are not running the exact same search and selection
-        directory = input('Enter the full, absolute path of the directory you wish to make a random selection from:\n')     # get a new directory to choose from
-    _file = str(choice(listdir(directory)))     # choose a filename at random from that directory
-    target = directory + '/' + _file            # stick that filename onto the full directory path
+def flatRandom():
+    choosing = True
+    repeat = False
 
-    call(['xdg-open', target])                  # and pass it to a sub-shell to be opened with xdg-open
+    while choosing == True:
+        if repeat == False:
+            directory = input('Enter the full, absolute path of the directory you wish to make a random selection from:\n')
+        _file = str(choice(os.listdir(directory)))
+        target = directory + '/' + _file
 
-    response = input('Would you like to make another random selection? Enter "y" to continue: ')    # go again?
-    if response.upper() != 'Y':     # if no
-        choosing = False            # stop the program
-    else:                           # if yes
-        response = input('Would you like to repeat the random selection in the same directory? Enter "y" to repeat: ')  #do you want to select randomly from the same directory?
-        if response.upper() == 'Y':     # if yes
-            repeat = True               # repeat the exact same random search
-        else:                           # if no
-            repeat = False              # don't
+        run(['xdg-open', target])
+
+        response = input('Would you like to make another random selection? Enter "y" to continue: ')
+        if response.upper() != 'Y':
+            choosing = False
+        else:
+            response = input('Would you like to repeat the random selection in the same directory? Enter "y" to repeat: ')
+            if response.upper() == 'Y':
+                repeat = True
+            else:
+                flatOrDeep()
+
+def deepRandom(depth):
+    choosing = True
+    repeat = False
+    
+    while choosing == True:     
+        if repeat == False:     
+            directory = input('Enter the full, absolute path of the top-level directory you wish to start the random selection search from:\n')
+            
+        target = descend(directory, depth)
+        
+        run(['xdg-open', target])
+
+        response = input('Would you like to make another random selection? Enter "y" to continue: ')    
+        if response.upper() != 'Y':     
+            choosing = False            
+        else:                           
+            response = input('Would you like a different random selection from the same directories? Enter "y" to repeat: ')   
+            if response.upper() == 'Y':    
+                repeat = True               
+            else:             
+                flatOrDeep()
+
+def descend(directory, depth, dive = -1):
+    os.chdir(directory)
+    dirlist = []
+    global possibilities
+    baseList = os.listdir(directory)
+
+    if dive < depth:
+        dive += 1
+        for x in baseList:
+            if os.path.isfile(x) == True: 
+                _path = directory + '/' + x
+                possibilities.append(_path)
+            elif os.path.isdir(x) == True: 
+                dirlist.append(x)
+        for x in dirlist: 
+            nextdir = directory + '/' + dirlist.pop()
+            descend(nextdir, depth, dive)
+
+    target = str(choice(possibilities))
+    return target
+
+def flatOrDeep():
+    depth = input('Would you like to pick randomly from a single directory?\nEnter "y" for a single directory or any other non-negative number to include up to that many levels of subdirectories:\n')
+    if depth == 'y': 
+        flatRandom()
+    elif depth != 'y':
+        depth = int(depth)
+        deepRandom(depth)
+    else: flatOrDeep() 
+        
+if __name__ == '__main__':
+    flatOrDeep()
