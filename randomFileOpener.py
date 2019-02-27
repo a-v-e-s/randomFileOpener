@@ -18,11 +18,11 @@ def flat():
 
     while choosing:
         if repeat == False:
-            directory = input('Enter the full, absolute path of the directory you wish to make a random selection from:\n')
+            directory = input('\nEnter the full, absolute path of the directory you wish to make a random selection from:\n')
         try:
             file = str(random.choice(os.listdir(directory)))
         except FileNotFoundError:
-            retry = input('No such directory: %s\nEnter "y" to try again:' % directory)
+            retry = input('\nNo such directory: %s\nEnter "y" to try again:\n' % directory)
             if retry.lower() == 'y':
                 flat()
             else:
@@ -39,13 +39,13 @@ def deep(depth, possibilities):
     
     while choosing:     
         if repeat == False:     
-            directory = input('Enter the full, absolute path of the top-level directory you wish to start the random selection search from:\n')
+            directory = input('\nEnter the full, absolute path of the top-level directory you wish to start the random selection search from:\n')
             
         possibilities = []
         try:
             target = descend(directory, depth, possibilities)
         except FileNotFoundError:
-            retry = input('No such directory: %s\nEnter "y" to try again:' % directory)
+            retry = input('\nNo such directory: %s\nEnter "y" to try again:\n' % directory)
             if retry.lower() == 'y':
                 deep(depth, possibilities)
             else:
@@ -77,7 +77,7 @@ def descend(directory, depth, possibilities, dive = -1,):
         return target
 
 def redo():
-    response = input('Would you like to make another selection? Enter "r" to make a different selection from the same directory or directories, "d" to make a different random selection, or anything else to exit the program: ')
+    response = input('\nWould you like to make another selection?\nEnter "r" to make a different selection from the same directory or directories.\n Enter "d" to make a different random selection, or anything else to exit the program:\n')
     if response.lower() == 'r':
         repeat = True
         return repeat
@@ -88,11 +88,11 @@ def redo():
 
 def main():
     try:
-        depth = abs(int(input('Would you like to pick randomly from a single directory?\nEnter 1 for a single directory or any other non-zero integer to include up to that many levels of subdirectories:\n')))
+        depth = abs(int(input('\nWould you like to pick randomly from a single directory?\nEnter 1 for a single directory\nEnter any other non-zero integer to include up to that many levels of subdirectories:\n')))
         if depth == 0:
             raise Shallow()
     except (ValueError, Shallow):
-        retry = input('Invalid input: Make sure you enter a non-zero integer and nothing else.\nEnter "y" to try again:\n')
+        retry = input('\nInvalid input: Make sure you enter a non-zero integer and nothing else.\nEnter "y" to try again:\n')
         if retry.lower() == 'y': 
             main()
         else:
