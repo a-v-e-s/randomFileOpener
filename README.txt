@@ -6,9 +6,9 @@ It requires:
   Linux-like OS with BASH and xdg-open
   
 Open it from the command line with:
-  $ python3 randomFileOpener.py
+  $ python3 randomFile.py
   
 The usage is self-explanatory!
-This repository is a WORK IN PROGRESS!
+This repository is a work in progress!
 I'm an amateur and still learning python.
 New features and support for other Operating systems are in the works...
