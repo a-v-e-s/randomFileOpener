@@ -11,100 +11,92 @@ This is a work in progress...
 import os
 import subprocess
 import random
+import copy
 
-def flat():
-    choosing = True
-    repeat = False
+global deepfiles
 
-    while choosing:
-        if repeat == False:
-            directory = input('\nEnter the full, absolute path of the directory you wish to make a random selection from:\n')
-        try:
-            file = str(random.choice(os.listdir(directory)))
-        except FileNotFoundError:
-            retry = input('\nNo such directory: %s\nEnter "y" to try again:\n' % directory)
-            if retry.lower() == 'y':
-                flat()
-            else:
-                exit()
-        else:
-            target = directory + '/' + file
-            subprocess.run(['xdg-open', target])
+def main():
+    directory = input('\nEnter the full, absolute path of the directory you wish to make a random selection from:\n')
+    try:
+        depth = abs(int(input('\nWould you like to include sub-directories?\nEnter any non-zero integer to include up to that many levels of subdirectories.\nEnter "0" to search only a single directory:\n')))
+    except (ValueError):
+        depth = abs(int(input('\nInvalid input: Make sure you enter an integer and nothing else:\n')))
 
-        repeat = redo()
+    included = []
+    excluded = []
 
-def deep(depth, possibilities):
-    choosing = True
-    repeat = False
+    exin = input('\nWould you like to restrict your search to only certain file types or exclude any filetypes?\nEnter "i" to run an inclusive search with only certain filetypes, "e" to run an exclusive search excluding certain filetypes, or anything else to run a fully inclusive search of all files:\n')
+    if exin.lower() == 'i':
+        included = input('\nEnter the file extensions you would like to restrict your search to separated by spaces without any commas:\n').lower().split()
+    if exin.lower() == 'e':
+        excluded = input('\nEnter the file extensions you would like to exclude from your search separated by spaces without any commas:\n').lower().split()
+
+    files = []
+
+    if depth == 0:
+        files = os.listdir(directory)
+    else:
+        global deepfiles
+        deepfiles = []
+        descend(directory, depth)
+        files = deepfiles
     
-    while choosing:     
-        if repeat == False:     
-            directory = input('\nEnter the full, absolute path of the top-level directory you wish to start the random selection search from:\n')
-            
-        possibilities = []
-        try:
-            target = descend(directory, depth, possibilities)
-        except FileNotFoundError:
-            retry = input('\nNo such directory: %s\nEnter "y" to try again:\n' % directory)
-            if retry.lower() == 'y':
-                deep(depth, possibilities)
-            else:
-                exit()
+    options = []
+
+    if len(included) != 0:
+        for p in files:
+            for i in included:
+                if p.lower().endswith(i):
+                    options.append(p)
+                    break
+    elif len(excluded) != 0:
+        for p in files:
+            index = 0
+            for e in excluded:
+                index += 1
+                if p.lower().endswith(e):
+                    break
+                if index == len(excluded):
+                    options.append(p)
+    else:
+        options = files
+
+    repeat = True
+    while repeat == True:
+        target = random.choice(options)
+        if depth == 0:
+            target = directory + '/' + target
+
+        subprocess.run(['xdg-open', target])
+        
+        response = input('\nWould you like to make another selection?\nEnter "r" to make a selection from the same directory or directories.\n Enter "d" to make a selection from different directories, or anything else to exit the program:\n')
+        if response.lower() == 'r':
+            pass
+        elif response.lower() == 'd':
+            repeat = False
+            main()
         else:
-            subprocess.run(['xdg-open', target])
+            exit()
 
-        repeat = redo()
-
-def descend(directory, depth, possibilities, dive = -1,):
+def descend(directory, depth, dive=-1): 
+    global deepfiles
     os.chdir(directory)
     dirlist = []
     baseList = os.listdir(directory)
 
     if dive < depth:
         dive += 1
+
         for x in baseList:
-            if os.path.isfile(x) == True: 
+            if os.path.isfile(x) == True:
                 path = directory + '/' + x
-                possibilities.append(path)
-            elif os.path.isdir(x) == True: 
+                deepfiles.append(path)
+            elif os.path.isdir(x) == True:
                 dirlist.append(x)
-        for x in dirlist: 
-            nextdir = directory + '/' + dirlist.pop()
-            descend(nextdir, depth, possibilities, dive)
 
-    if dive == 0:
-        target = random.choice(possibilities)
-        return target
+        for x in dirlist:
+            nextdir = directory + '/' + x
+            descend(nextdir, depth, dive)
 
-def redo():
-    response = input('\nWould you like to make another selection?\nEnter "r" to make a different selection from the same directory or directories.\n Enter "d" to make a different random selection, or anything else to exit the program:\n')
-    if response.lower() == 'r':
-        repeat = True
-        return repeat
-    elif response.lower() == 'd':
-        main()
-    else:
-        exit()
-
-def main():
-    try:
-        depth = abs(int(input('\nWould you like to pick randomly from a single directory?\nEnter 1 for a single directory\nEnter any other non-zero integer to include up to that many levels of subdirectories:\n')))
-        if depth == 0:
-            raise Shallow()
-    except (ValueError, Shallow):
-        retry = input('\nInvalid input: Make sure you enter a non-zero integer and nothing else.\nEnter "y" to try again:\n')
-        if retry.lower() == 'y': 
-            main()
-        else:
-            exit()
-    else:
-        if depth == 1: 
-            flat()
-        elif depth != 1:
-            possibilities = []
-            deep(depth, possibilities)
-
-class Shallow(Exception): pass
-        
 if __name__ == '__main__':
     main()
