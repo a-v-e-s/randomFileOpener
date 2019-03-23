@@ -1,15 +1,11 @@
-#!/usr/bin/python3
-# randomFile.py
-
 """
-I developed this program so that I could get more enjoyment out of my own media libraries.
-The usage is self-explanatory. This is a work in progress. 
-It has been tested on Debian Linux and Windows 10 with Python 3.X and should work with these.
+I developed this program so that I could get more enjoyment out of my video library.
+The usage is self-explanatory.
+This is a work in progress. 
 GUI and other features still to come.
 """
 
 import os, sys, subprocess, random
-global files
 
 def main():
     # Add one or more directories to search for files and decide whether or not to search their subdirectories
@@ -37,19 +33,18 @@ def main():
         excluded = input('\nEnter the file extensions you would like to exclude from your search separated by spaces without any commas:\n').lower().split()
 
     # Build a the list of files in the (sub-)directories
-    global files
     files = []
     for x in branches.keys():
         if branches[x] == False:
             for y in os.listdir(x):
-                if os.path.isfile(x + '/' + y):
-                    files.append(x + '/' + y)
+                if os.path.isfile(os.path.join(x, y)):
+                    files.append(os.path.join(x, y))
         else:
-            # I could have used os.walk here, but I built the descend function before I learned about os.walk
-            descend(x)
+            for root, subdirectories, collections in os.walk(x):
+                for item in collections:
+                    files.append(os.path.join(root, item))
     
-    # If the user wanted to exclude or only include certain filetypes, 
-    # decide if the files in the files list are options based on their extensions
+    # If the user wanted to exclude or only include certain filetypes, decide if the files in the files list are options based on their extensions
     options = []
     if len(included) != 0:
         for f in files:
@@ -76,7 +71,7 @@ def main():
         if sys.platform.lower().startswith('win'):
             os.startfile(target)
         elif sys.platform.lower().startswith('dar'):
-            # I don't have a Mac so I haven't been able to develop support for them. This *might* work...
+            # I don't have a Mac so I haven't been able to test for them. This *might* work...
             try:
                 subprocess.run(['open', target])
             except:
@@ -96,23 +91,6 @@ def main():
             main()
         else:
             exit()
-
-def descend(directory): 
-    # Add files within directory to global files list, build lists of directories within the directory, 
-    # then recursively call this function to do the same in all subdirectories.
-    global files
-    os.chdir(directory)
-    subBranches = []
-    baseList = os.listdir(directory)
-    for x in baseList:
-        if os.path.isfile(x) == True:
-            path = directory + '/' + x
-            files.append(path)
-        elif os.path.isdir(x) == True:
-            subBranches.append(x)
-    for x in subBranches:
-        nextdir = directory + '/' + x
-        descend(nextdir)
 
 if __name__ == '__main__':
     main()
