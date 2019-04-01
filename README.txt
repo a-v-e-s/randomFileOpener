@@ -6,11 +6,10 @@ It requires:
   Windows or
   Unix-like OS with xdg-open
   
-This program is command-line only for the time being.
+This program now features a tkinter GUI!
 Open it from the command line with:
   $ python3 randomFile.py
   
 The usage is self-explanatory.
 This repository is a work in progress.
 I'm an amateur and still learning python.
-New features are in the works...
