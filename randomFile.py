@@ -1,10 +1,9 @@
 """
-randomFile.py: The Random File Opener
-I built this application to get more enjoyment out of my video library, 
-and also as a practice project. 
+RandomFile.py: The Random File Opener
+I built this application to get more enjoyment out of my video library,
 Usage is fairly self-explanatory, and a help button is included.
 To start from command line:
-$ python3 /path/to/RandomFile.py 
+$ python3 /path/to/RandomFile.py
 """
 
 import os
@@ -12,6 +11,7 @@ import sys
 import subprocess
 import random
 import functools
+import threading
 import tkinter as tk
 from tkinter.filedialog import askdirectory
 
@@ -33,8 +33,8 @@ def go(Notice, Inclusivity, Extensions):
             limbs[x.get()] = branches[x].get()
         else:
             notdirs.append(x.get() + ' is not a directory')
-            if index == len(branches):
-                warning(Notice, notdirs, type=1)
+        if index == len(branches):
+            warning(Notice, notdirs, type=1)
 
     # Get full paths to all files from all real directories
     for limb in limbs.keys():
@@ -84,6 +84,7 @@ def go(Notice, Inclusivity, Extensions):
         except Exception:
             warning(Notice, None, type=4)
 
+
 def add_branch(Tree):
     # Add a tk.Frame called Branch with fields for user to fill out
     global branches
@@ -91,7 +92,7 @@ def add_branch(Tree):
     rownum += 1
     Branch = tk.Frame(Tree)
     Depth = tk.IntVar()
-    
+
     tk.Checkbutton(Branch, text='Search Sub-Folders?', variable=Depth,
         onvalue=1, offvalue=0).grid(row=rownum, column=0)
     Entry = tk.Entry(Branch, width=50)
@@ -163,35 +164,37 @@ def help():
         '"Clear All" to clear all fields,\n'
         'and "Exit" to close the program.').pack(ipadx=15)
     tk.Button(Help, text='OK', command=Help.destroy).pack()
-    Help()
-        
-    
+    Help.mainloop()
+
+
 def warning(Notice, x, type=0):
     # If there was a problem, inform the user of what went wrong
     if type == 0:
-        tk.Label(Root, text='Sorry, an unknown error occurred. This '
+        Failure = tk.Toplevel()
+        tk.Label(Failure, text='Sorry, an unknown error occurred. This '
         'program is still under development.', fg='red').pack(ipadx=10)
+        Failure.mainloop()
     if type == 1:
         Notice.config(text='\n'.join(x), fg='red')
     if type == 2:
         Failure = tk.Toplevel()
         Failure.title('Failed to open file')
-        tk.Label(Failure, text='Windows failed to open the file.', fg='red')
+        tk.Label(Failure, text='Windows failed to open the file.', fg='red').pack()
         tk.Button(Failure, text='OK', command=Failure.destroy).pack()
-        Failure()
+        Failure.mainloop()
     if type == 3:
         Failure = tk.Toplevel()
         Failure.title('Failed to open file')
-        tk.Label(Failure, text='Mac failed to open the file.', fg='red')
+        tk.Label(Failure, text='Mac failed to open the file.', fg='red').pack()
         tk.Button(Failure, text='OK', command=Failure.destroy).pack()
-        Failure()
+        Failure.mainloop()
     if type == 4:
         Failure = tk.Toplevel()
         Failure.title('Failed to open file')
         tk.Label(Failure, text='Failed to open file.\n'
-            'Program requires xdg-open.', fg='red')
+            'Program requires xdg-open.', fg='red').pack()
         tk.Button(Failure, text='OK', command=Failure.destroy).pack()
-        Failure()
+        Failure.mainloop()
 
 
 # Build and start the GUI
@@ -215,14 +218,14 @@ tk.Label(Filetypes, text='Choose whether to exclude certain '
 Inclusivity = tk.IntVar()
 Extensions = tk.Entry(Filetypes, text='File extensions',
     width=25, state='disabled')
-tk.Radiobutton(Filetypes, text='All-Inclusive', value=2, 
-    variable=Inclusivity, command=(lambda x=Extensions: 
+tk.Radiobutton(Filetypes, text='All-Inclusive', value=2,
+    variable=Inclusivity, command=(lambda x=Extensions:
     x.config(state='disabled'))).grid(row=1)
-tk.Radiobutton(Filetypes, text='Exclude:', value=1, 
-    variable=Inclusivity, command=(lambda x=Extensions: 
+tk.Radiobutton(Filetypes, text='Exclude:', value=1,
+    variable=Inclusivity, command=(lambda x=Extensions:
     x.config(state='normal'))).grid(row=2)
-tk.Radiobutton(Filetypes, text='Only Include:', value=0, 
-    variable=Inclusivity, command=(lambda x=Extensions: 
+tk.Radiobutton(Filetypes, text='Only Include:', value=0,
+    variable=Inclusivity, command=(lambda x=Extensions:
     x.config(state='normal'))).grid(row=3)
 Inclusivity.set(2)
 Extensions.grid(row=4)
@@ -233,13 +236,16 @@ Notice = tk.Label(Problems)
 Notice.pack()
 
 Buttons = tk.Frame(Root)
-tk.Button(Buttons, text='Go!', command=functools.partial(
-    go, Notice, Inclusivity, Extensions)).grid(row=0, column=1)
+Go = tk.Button(Buttons, text='Go!', command=(lambda:
+    threading.Thread(None, go, args=(Notice, Inclusivity, Extensions)).run()))
+Go.grid(row=0, column=1)
 tk.Button(Buttons, text='Clear All', command=functools.partial(
     clear, Inclusivity, Extensions)).grid(row=0, column=2)
 tk.Button(Buttons, text='Help', command=help).grid(row=0, column=3)
-tk.Button(Buttons, text='Exit', command=Root.quit).grid(row=0, column=4)
+tk.Button(Buttons, text='Exit', command=Root.destroy).grid(row=0, column=4)
 Buttons.pack(ipadx=10, ipady=5)
+Root.bind(sequence='<Return>', func=(lambda x:
+    threading.Thread(None, go, args=(Notice, Inclusivity, Extensions)).run()))
 
 if __name__ == '__main__':
     Root.mainloop()
