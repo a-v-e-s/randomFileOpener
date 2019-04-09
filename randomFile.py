@@ -85,6 +85,79 @@ def go(Notice, Inclusivity, Extensions):
             warning(Notice, None, type=4)
 
 
+def warning(Notice, x, type=0):
+    # If there was a problem, inform the user of what went wrong
+    if type == 0:
+        Failure = tk.Toplevel()
+        tk.Label(Failure, text='Sorry, an unknown error occurred. This '
+        'program is still under development.', fg='red').pack(ipadx=10)
+        Failure.mainloop()
+    if type == 1:
+        Notice.config(text='\n'.join(x), fg='red')
+    if type == 2:
+        Failure = tk.Toplevel()
+        Failure.title('Failed to open file')
+        tk.Label(Failure, text='Windows failed to open the file.', fg='red').pack()
+        tk.Button(Failure, text='OK', command=Failure.destroy).pack()
+        Failure.mainloop()
+    if type == 3:
+        Failure = tk.Toplevel()
+        Failure.title('Failed to open file')
+        tk.Label(Failure, text='Mac failed to open the file.', fg='red').pack()
+        tk.Button(Failure, text='OK', command=Failure.destroy).pack()
+        Failure.mainloop()
+    if type == 4:
+        Failure = tk.Toplevel()
+        Failure.title('Failed to open file')
+        tk.Label(Failure, text='Failed to open file.\n'
+            'Program requires xdg-open.', fg='red').pack()
+        tk.Button(Failure, text='OK', command=Failure.destroy).pack()
+        Failure.mainloop()
+
+
+def help():
+    # Display basic usage instructions in a popup window
+    Help = tk.Toplevel()
+    Help.title('Help')
+    tk.Label(Help, text='Usage:\n\n'
+        'Enter the full absolute paths of folders you want to pick from in '
+        'the top section.\n'
+        'In Windows this usually begins with C:\\ \n'
+        'In Mac OS and Linux it begins with / \n'
+        'Use the browse button if you need help finding the path of a given '
+        'folder.\n'
+        'Mark the checkbox if you want to include sub-folders of these in '
+        'your search.\n\n'
+        'In the bottom section, decide if you want to exclude certain '
+        'filetypes,\n'
+        'include only certain filetypes, or run a fully inclusive search '
+        'of everything,\n'
+        'and mark the corresponding radio button.\n'
+        'Type the list of extensions of the filetypes you want to \n'
+        'exclude from or restrict your search to without commas.\n\n'
+        'Examples of common extensions for various filetypes:\n'
+        'Video: .mp4 .avi .m4v .mov .mpg .wmv\n'
+        'Picture: .jpg .jpeg .gif .png .bmp .svg\n'
+        'Music: .m4a .mid .mp3 .mpa .wav .wma\n\n'
+        'Click the "Go!" button to run the search,\n'
+        '"Clear All" to clear all fields,\n'
+        'and "Exit" to close the program.').pack(ipadx=15)
+    tk.Button(Help, text='OK', command=Help.destroy).pack()
+    Help.mainloop()
+
+
+def clear(Inclusivity, Extensions):
+    # Clear/Reset all fields
+    global branches
+    for x in branches.keys():
+        x.delete(0, len(x.get()))
+        branches[x].set(0)
+    Inclusivity.set(2)
+    Extensions.config(state='normal')
+    Extensions.delete(0, len(Extensions.get()))
+    Extensions.config(state='disabled')
+
+
 def add_branch(Tree):
     # Add a tk.Frame called Branch with fields for user to fill out
     global branches
@@ -122,79 +195,6 @@ def prune(Entry):
     global branches
     rownum -= 1
     del branches[Entry]
-
-
-def clear(Inclusivity, Extensions):
-    # Clear/Reset all fields
-    global branches
-    for x in branches.keys():
-        x.delete(0, len(x.get()))
-        branches[x].set(0)
-    Inclusivity.set(2)
-    Extensions.config(state='normal')
-    Extensions.delete(0, len(Extensions.get()))
-    Extensions.config(state='disabled')
-
-
-def help():
-    # Display basic usage instructions in a popup window
-    Help = tk.Toplevel()
-    Help.title('Help')
-    tk.Label(Help, text='Usage:\n\n'
-        'Enter the full absolute paths of folders you want to pick from in '
-        'the top section.\n'
-        'In Windows this usually begins with C:\\ \n'
-        'In Mac OS and Linux it begins with / \n'
-        'Use the browse button if you need help finding the path of a given '
-        'folder.\n'
-        'Mark the checkbox if you want to include sub-folders of these in '
-        'your search.\n\n'
-        'In the bottom section, decide if you want to exclude certain '
-        'filetypes,\n'
-        'include only certain filetypes, or run a fully inclusive search '
-        'of everything,\n'
-        'and mark the corresponding radio button.\n'
-        'Type the list of extensions of the filetypes you want to \n'
-        'exclude from or restrict your search to without commas.\n\n'
-        'Examples of common extensions for various filetypes:\n'
-        'Video: .mp4 .avi .m4v .mov .mpg .wmv\n'
-        'Picture: .jpg .jpeg .gif .png .bmp .svg\n'
-        'Music: .m4a .mid .mp3 .mpa .wav .wma\n\n'
-        'Click the "Go!" button to run the search,\n'
-        '"Clear All" to clear all fields,\n'
-        'and "Exit" to close the program.').pack(ipadx=15)
-    tk.Button(Help, text='OK', command=Help.destroy).pack()
-    Help.mainloop()
-
-
-def warning(Notice, x, type=0):
-    # If there was a problem, inform the user of what went wrong
-    if type == 0:
-        Failure = tk.Toplevel()
-        tk.Label(Failure, text='Sorry, an unknown error occurred. This '
-        'program is still under development.', fg='red').pack(ipadx=10)
-        Failure.mainloop()
-    if type == 1:
-        Notice.config(text='\n'.join(x), fg='red')
-    if type == 2:
-        Failure = tk.Toplevel()
-        Failure.title('Failed to open file')
-        tk.Label(Failure, text='Windows failed to open the file.', fg='red').pack()
-        tk.Button(Failure, text='OK', command=Failure.destroy).pack()
-        Failure.mainloop()
-    if type == 3:
-        Failure = tk.Toplevel()
-        Failure.title('Failed to open file')
-        tk.Label(Failure, text='Mac failed to open the file.', fg='red').pack()
-        tk.Button(Failure, text='OK', command=Failure.destroy).pack()
-        Failure.mainloop()
-    if type == 4:
-        Failure = tk.Toplevel()
-        Failure.title('Failed to open file')
-        tk.Label(Failure, text='Failed to open file.\n'
-            'Program requires xdg-open.', fg='red').pack()
-        tk.Button(Failure, text='OK', command=Failure.destroy).pack()
-        Failure.mainloop()
 
 
 # Build and start the GUI
