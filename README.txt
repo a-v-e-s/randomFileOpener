@@ -8,8 +8,6 @@ It requires:
   
 This program now features a tkinter GUI!
 Open it from the command line with:
-  $ python3 randomFile.py
+  $ python3 /path/to/randomFile.py
   
-The usage is self-explanatory.
-This repository is a work in progress.
-I'm an amateur and still learning python.
+The usage is self-explanatory and a Help button is included
