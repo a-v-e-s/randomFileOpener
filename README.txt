@@ -6,6 +6,8 @@ It requires:
   Windows or
   Unix-like OS with xdg-open
   
+randomFile.py hasn't been tested on a Mac, but might work anyways.
+
 This program now features a tkinter GUI!
 Open it from the command line with:
   $ python3 /path/to/randomFile.py
