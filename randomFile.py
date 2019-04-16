@@ -236,9 +236,9 @@ Notice = tk.Label(Problems)
 Notice.pack()
 
 Buttons = tk.Frame(Root)
-Go = tk.Button(Buttons, text='Go!', command=(lambda:
-    threading.Thread(None, go, args=(Notice, Inclusivity, Extensions)).run()))
-Go.grid(row=0, column=1)
+tk.Button(Buttons, text='Go!', command=(lambda:
+    threading.Thread(None, go, args=(Notice, Inclusivity, Extensions))
+    .run())).grid(row=0, column=1)
 tk.Button(Buttons, text='Clear All', command=functools.partial(
     clear, Inclusivity, Extensions)).grid(row=0, column=2)
 tk.Button(Buttons, text='Help', command=help).grid(row=0, column=3)
