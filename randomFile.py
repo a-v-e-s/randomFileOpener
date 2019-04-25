@@ -16,14 +16,13 @@ import tkinter as tk
 from tkinter.filedialog import askdirectory
 
 
-def go(Notice, Inclusivity, Extensions):
+def go(branches, Inclusivity, Extensions, Notice):
     inclusivity = Inclusivity.get()
     extensions = Extensions.get().split()
     files = []
     options = []
 
     # Check all entries to verify they are real directories
-    global branches
     notdirs = []
     limbs = {}
     index = 0
@@ -237,7 +236,7 @@ Notice.pack()
 
 Buttons = tk.Frame(Root)
 tk.Button(Buttons, text='Go!', command=(lambda:
-    threading.Thread(None, go, args=(Notice, Inclusivity, Extensions))
+    threading.Thread(None, go, args=(branches, Inclusivity, Extensions, Notice))
     .run())).grid(row=0, column=1)
 tk.Button(Buttons, text='Clear All', command=functools.partial(
     clear, Inclusivity, Extensions)).grid(row=0, column=2)
@@ -245,7 +244,7 @@ tk.Button(Buttons, text='Help', command=help).grid(row=0, column=3)
 tk.Button(Buttons, text='Exit', command=Root.destroy).grid(row=0, column=4)
 Buttons.pack(ipadx=10, ipady=5)
 Root.bind(sequence='<Return>', func=(lambda x:
-    threading.Thread(None, go, args=(Notice, Inclusivity, Extensions)).run()))
+    threading.Thread(None, go, args=(branches, Inclusivity, Extensions, Notice)).run()))
 
 if __name__ == '__main__':
     Root.mainloop()
