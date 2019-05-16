@@ -11,4 +11,4 @@ This program now features both a tkinter GUI and command-line options
 Open the GUI from the command line with:
   $ python3 /path/to/randomFile.py
  Command-line usage:
-  # python3 /path/to/randomFile.py /path/to/directory1 [/path/to/directory2 /path/to/directory3 ...] [-e|-i] [ext1 ext2 ext3 ...]
+  $ python3 /path/to/randomFile.py /path/to/directory1 [/path/to/directory2 /path/to/directory3 ...] [-e|-i] [ext1 ext2 ext3 ...]
