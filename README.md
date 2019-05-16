@@ -2,14 +2,7 @@ Hello, do you have a large media library that you would enjoy more if you chould
 
 If so, this might be perfect for you.
 
-It requires:
-  
-  python 3.X
-
-  Windows or
-  
-  Unix-like OS with xdg-open
-  
+It requires: python 3.X, Windows, or Unix-like OS with xdg-open
   
 randomFile.py hasn't been tested on a Mac, but might work anyways.
 
