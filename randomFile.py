@@ -9,13 +9,7 @@ To use CLI:
 $ python3 /path/to/randomFile.py /path/to/directory1 [/path/to/directory2 /path/to/directory3 ...] [-e|-i] [ext1 ext2 ext3 ...]
 """
 
-import os
-import sys
-import subprocess
-import random
-import functools
-import threading
-import argparse
+import os, sys, subprocess, random, functools, threading, argparse
 import tkinter as tk
 from tkinter.filedialog import askdirectory
 
@@ -133,6 +127,7 @@ class Gui():
         tk.Button(Buttons, text='Exit', command=Root.destroy).grid(row=0, column=4)
         Buttons.pack(ipadx=10, ipady=5)
         Root.bind(sequence='<Return>', func=(lambda x: threading.Thread(None, main, args=(branches, Inclusivity.get(), Extensions.get().split(), Notice)).run()))
+        Root.bind(sequence='<Control-KeyPress-n>', func=(lambda x: self.add_branch(Tree)))
         Root.mainloop()
 
 
