@@ -268,4 +268,3 @@ if __name__ == '__main__' and len(sys.argv) == 1:
     Gui()
 elif __name__ == '__main__' and len(sys.argv) > 1:
     cli_mode()
-#test comment
