@@ -6,7 +6,9 @@ To start GUI from command line:
 $ python3 /path/to/RandomFile.py
 
 To use CLI:
-$ python3 /path/to/randomFile.py /path/to/directory1 [/path/to/directory2 /path/to/directory3 ...] [-e|-i] [ext1 ext2 ext3 ...]
+$ python3 /path/to/randomFile.py /path/to/directory1 
+[/path/to/directory2 /path/to/directory3 ...] [-e|-i] [ext1 ext2 ext3
+...]
 """
 
 import os, sys, subprocess, random, functools, threading, argparse
@@ -20,7 +22,7 @@ def main(branches, inclusivity, extensions, Notice=None):
     files = []
     options = []
     main_branches = {}
-    # Translate StringVar and IntVar objects into strings and ints if necessary
+    # Translate StringVar and IntVar objects
     if len(sys.argv) == 1:
         for x in branches.keys():
             main_branches[x.get()] = branches[x].get()
@@ -101,17 +103,27 @@ class Gui():
         rownum = 0
 
         Tree = tk.Frame(Root)
-        tk.Label(Tree, text='Enter the path of a directory to choose from:', font=('tk.TkDefaultFont', 12)).grid(row=rownum)
+        tk.Label(Tree, text='Enter the path of a directory to choose '
+            'from:', font=('tk.TkDefaultFont', 12)).grid(row=rownum)
         self.add_branch(Tree)
         Tree.pack(ipadx=10, ipady=5)
 
         Filetypes = tk.Frame(Root)
-        tk.Label(Filetypes, text='Choose whether to exclude certain file based on type:', font=('tk.TkDefaultFont', 12)).grid(row=0)
+        tk.Label(Filetypes, text='Choose whether to exclude certain '
+            'file based on type:',
+            font=('tk.TkDefaultFont', 12)).grid(row=0)
         Inclusivity = tk.IntVar()
-        Extensions = tk.Entry(Filetypes, text='File extensions', width=25, state='disabled')
-        tk.Radiobutton(Filetypes, text='All-Inclusive', value=2, variable=Inclusivity, command=(lambda x=Extensions: x.config(state='disabled'))).grid(row=1)
-        tk.Radiobutton(Filetypes, text='Exclude:', value=1, variable=Inclusivity, command=(lambda x=Extensions: x.config(state='normal'))).grid(row=2)
-        tk.Radiobutton(Filetypes, text='Only Include:', value=0, variable=Inclusivity, command=(lambda x=Extensions: x.config(state='normal'))).grid(row=3)
+        Extensions = tk.Entry(Filetypes, text='File extensions',
+            width=25, state='disabled')
+        tk.Radiobutton(Filetypes, text='All-Inclusive', value=2,
+            variable=Inclusivity, command=(lambda x=Extensions:
+            x.config(state='disabled'))).grid(row=1)
+        tk.Radiobutton(Filetypes, text='Exclude:', value=1,
+            variable=Inclusivity, command=(lambda x=Extensions:
+            x.config(state='normal'))).grid(row=2)
+        tk.Radiobutton(Filetypes, text='Only Include:', value=0,
+            variable=Inclusivity, command=(lambda x=Extensions:
+            x.config(state='normal'))).grid(row=3)
         Inclusivity.set(2)
         Extensions.grid(row=4)
         Filetypes.pack(ipadx=10, ipady=5)
@@ -121,13 +133,24 @@ class Gui():
         Notice.pack()
 
         Buttons = tk.Frame(Root)
-        tk.Button(Buttons, text='Go!', command=(lambda: threading.Thread(None, main, args=(branches, Inclusivity.get(), Extensions.get().split(), Notice)).run())).grid(row=0, column=1)
-        tk.Button(Buttons, text='Clear All', command=functools.partial(self.clear, Inclusivity, Extensions)).grid(row=0, column=2)
-        tk.Button(Buttons, text='Help', command=self.help).grid(row=0, column=3)
-        tk.Button(Buttons, text='Exit', command=Root.destroy).grid(row=0, column=4)
+        tk.Button(Buttons, text='Go!', command=(lambda:
+            threading.Thread(None, main, args=(branches,
+            Inclusivity.get(), Extensions.get().split(),
+            Notice)).run())).grid(row=0, column=1)
+        tk.Button(Buttons, text='Clear All',
+            command=functools.partial(self.clear, Inclusivity,
+            Extensions)).grid(row=0, column=2)
+        tk.Button(Buttons, text='Help', command=self.help).grid(row=0,
+            column=3)
+        tk.Button(Buttons, text='Exit',
+            command=Root.destroy).grid(row=0, column=4)
         Buttons.pack(ipadx=10, ipady=5)
-        Root.bind(sequence='<Return>', func=(lambda x: threading.Thread(None, main, args=(branches, Inclusivity.get(), Extensions.get().split(), Notice)).run()))
-        Root.bind(sequence='<Control-KeyPress-n>', func=(lambda x: self.add_branch(Tree)))
+        Root.bind(sequence='<Return>', func=(lambda x:
+            threading.Thread(None, main, args=(branches,
+            Inclusivity.get(), Extensions.get().split(),
+            Notice)).run()))
+        Root.bind(sequence='<Control-KeyPress-n>', func=(lambda x:
+            self.add_branch(Tree)))
         Root.mainloop()
 
 
@@ -139,19 +162,26 @@ class Gui():
         Branch = tk.Frame(Tree)
         Depth = tk.IntVar()
 
-        tk.Checkbutton(Branch, text='Search Sub-Folders?', variable=Depth, onvalue=1, offvalue=0).grid(row=rownum, column=0)
+        tk.Checkbutton(Branch, text='Search Sub-Folders?',
+            variable=Depth, onvalue=1, offvalue=0).grid(row=rownum,
+            column=0)
         Entry = tk.Entry(Branch, width=50)
         Entry.grid(row=rownum, column=1)
         Entry.focus_set()
-        tk.Button(Branch, text='Browse', command=(lambda x=Entry:[x.delete(0, len(x.get())), x.insert(0, askdirectory())])).grid(row=rownum, column=2)
+        tk.Button(Branch, text='Browse',
+            command=(lambda x=Entry:[x.delete(0, len(x.get())),
+            x.insert(0, askdirectory())])).grid(row=rownum, column=2)
         Branch.grid(row=rownum)
         Twig = tk.Frame(Tree)
         Adder = tk.Button(Twig)
-        Adder.config(text='Add Folder', command=lambda x=Tree: self.add_branch(x))
+        Adder.config(text='Add Folder', command=lambda x=Tree:
+            self.add_branch(x))
         Adder.grid(row=rownum+1, column=1)
         if rownum > 1:
             Pruner = tk.Button(Twig)
-            Pruner.config(text='Remove Previous', command=lambda: [self.prune(Entry), Branch.grid_forget(), Twig.grid_forget()])
+            Pruner.config(text='Remove Previous', command=lambda:
+                [self.prune(Entry), Branch.grid_forget(),
+                Twig.grid_forget()])
             Pruner.grid(row=rownum+1, column=2)
         Twig.grid(row=rownum+1)
 
@@ -183,27 +213,35 @@ class Gui():
         if len(sys.argv) == 1:
             if type == 0:
                 Failure = tk.Toplevel()
-                tk.Label(Failure, text='Sorry, an unknown error occurred. This program is still under development.', fg='red').pack(ipadx=10)
+                tk.Label(Failure, text='Sorry, an unknown error '
+                    'occurred. This program is still under '
+                    'development.', fg='red').pack(ipadx=10)
                 Failure.mainloop()
             if type == 1:
                 Notice.config(text='\n'.join(x), fg='red')
             if type == 2:
                 Failure = tk.Toplevel()
                 Failure.title('Failed to open file')
-                tk.Label(Failure, text='Windows failed to open the file.', fg='red').pack()
-                tk.Button(Failure, text='OK', command=Failure.destroy).pack()
+                tk.Label(Failure, text='Windows failed to open the '
+                    'file.', fg='red').pack()
+                tk.Button(Failure, text='OK',
+                    command=Failure.destroy).pack()
                 Failure.mainloop()
             if type == 3:
                 Failure = tk.Toplevel()
                 Failure.title('Failed to open file')
-                tk.Label(Failure, text='Mac failed to open the file.', fg='red').pack()
-                tk.Button(Failure, text='OK', command=Failure.destroy).pack()
+                tk.Label(Failure, text='Mac failed to open the file.',
+                    fg='red').pack()
+                tk.Button(Failure, text='OK',
+                    command=Failure.destroy).pack()
                 Failure.mainloop()
             if type == 4:
                 Failure = tk.Toplevel()
                 Failure.title('Failed to open file')
-                tk.Label(Failure, text='Failed to open file.\nProgram requires xdg-open.', fg='red').pack()
-                tk.Button(Failure, text='OK', command=Failure.destroy).pack()
+                tk.Label(Failure, text='Failed to open file.\nProgram '
+                    'requires xdg-open.', fg='red').pack()
+                tk.Button(Failure, text='OK',
+                    command=Failure.destroy).pack()
                 Failure.mainloop()
 
 
@@ -212,16 +250,23 @@ class Gui():
         Help = tk.Toplevel()
         Help.title('Help')
         tk.Label(Help, text='Usage:\n\n'
-            'Enter the full absolute paths of folders you want to pick from in the top section.\n'
+            'Enter the full absolute paths of folders you want to pick'
+                ' from in the top section.\n'
             'In Windows this usually begins with C:\\ \n'
             'In Mac OS and Linux it begins with / \n'
-            'Use the browse button if you need help finding the path of a given folder.\n'
-            'Mark the checkbox if you want to include sub-folders of these in your search.\n\n'
-            'In the bottom section, decide if you want to exclude certain filetypes,\n'
-            'include only certain filetypes, or run a fully inclusive search of everything,\n'
+            'Use the browse button if you need help finding the path '
+                'of a given folder.\n'
+            'Mark the checkbox if you want to include sub-folders of '
+                'these in your search.\n\n'
+            'In the bottom section, decide if you want to exclude '
+                'certain filetypes,\n'
+            'include only certain filetypes, or run a fully inclusive '
+                'search of everything,\n'
             'and mark the corresponding radio button.\n'
-            'Type the list of extensions of the filetypes you want to \n'
-            'exclude from or restrict your search to without commas.\n\n'
+            'Type the list of extensions of the filetypes you want '
+                'to \n'
+            'exclude from or restrict your search to without '
+                'commas.\n\n'
             'Examples of common extensions for various filetypes:\n'
             'Video: .mp4 .avi .m4v .mov .mpg .wmv\n'
             'Picture: .jpg .jpeg .gif .png .bmp .svg\n'
@@ -238,9 +283,17 @@ def cli_mode():
     branches = {}
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('directories', type=str, nargs='*', metavar='/path/to/dir1 /path/to/dir2 ...', help='Enter a space-separated list of all directories you want to include.\nExample: $ python3 randomFile.py /path/to/directory/one /path/to/directory/two')
-    parser.add_argument('-e', nargs='*', help='Enter a space-separated list of all file extensions you want to exclude.\nExample: $ python3 randomFile.py /path/to/dir1 -e bmp avi wav')
-    parser.add_argument('-i', nargs='*', help='Enter a space-separated list of all file extensions you want to include.\nExample: $ python3 randomFile.py /path/to/dir1 -i mp3 mp4 jpeg jpg png')
+    parser.add_argument('directories', type=str, nargs='*',
+        metavar='/path/to/dir1 /path/to/dir2 ...', help='Enter a '
+        'space-separated list of all directories you want to '
+        'include.\nExample: $ python3 randomFile.py '
+        '/path/to/directory/one /path/to/directory/two')
+    parser.add_argument('-e', nargs='*', help='Enter a space-separated'
+        ' list of all file extensions you want to exclude.\nExample: $'
+        ' python3 randomFile.py /path/to/dir1 -e bmp avi wav')
+    parser.add_argument('-i', nargs='*', help='Enter a space-separated'
+        ' list of all file extensions you want to include.\nExample: $'
+        ' python3 randomFile.py /path/to/dir1 -i mp3 mp4 jpeg jpg png')
 
     args = parser.parse_args()
     print(args)         # debugging help
