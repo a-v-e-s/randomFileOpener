@@ -19,17 +19,17 @@ class Gui():
         self.rownum = 0
         self.branches = []
 
-        Tree = tk.Frame(Root)
+        self.Tree = tk.Frame(Root)
         dir_label = tk.Label(
-            Tree, text='Enter the path of a folder to choose from:',
+            self.Tree, text='Enter the path of a folder to choose from:',
             font=('tk.TkDefaultFont', 12)
         )
         dir_label.grid(row=self.rownum)
-        self.add_branch(Tree)
-        Tree.pack(ipadx=10, ipady=5)
+        self.add_branch()
+        self.Tree.pack(ipadx=10, ipady=5)
         
         Top = tk.Frame(Root)
-        Adder = tk.Button(Top, text='Add Folder', font=('tk.TkDefaultFont', 12), command=lambda x=Tree: self.add_branch(x))
+        Adder = tk.Button(Top, text='Add Folder', font=('tk.TkDefaultFont', 12), command=lambda: self.add_branch())
         Adder.grid(row=1, column=1)
         self.Pruner = tk.Button(
             Top, text='Remove Previous', font=('tk.TkDefaultFont', 12), state='disabled',
@@ -95,7 +95,7 @@ class Gui():
                 )).run()
             )
         )
-        Root.bind(sequence='<Control-KeyPress-n>', func=(lambda x: self.add_branch(Tree)))
+        Root.bind(sequence='<Control-KeyPress-n>', func=(lambda x: self.add_branch()))
         Root.bind(sequence='<Control-KeyPress-d>', func=(lambda x: self.prune()))
         Root.bind(sequence='<Control-KeyPress-h>', func=(lambda x: self.help_()))
         Root.bind(sequence='<Control-KeyPress-q>', func=(lambda x: Root.destroy()))
@@ -103,10 +103,10 @@ class Gui():
         Root.mainloop()
 
 
-    def add_branch(self, Tree):
+    def add_branch(self):
         # Add a tk.Frame called Branch with fields for user to fill out
         self.rownum += 1
-        Branch = tk.Frame(Tree)
+        Branch = tk.Frame(self.Tree)
         Depth = tk.IntVar()
 
         depth = tk.Checkbutton(
@@ -123,7 +123,7 @@ class Gui():
         )
         browse.grid(row=self.rownum, column=2)
         Branch.grid(row=self.rownum)
-        self.branches.append((Entry, Depth, depth, browse))
+        self.branches.append((Entry, Depth, depth, browse, Branch))
 
         if self.rownum > 1:
             self.Pruner.configure(state='active')
@@ -133,7 +133,7 @@ class Gui():
         # Move up one row and delete the previous Entry
         if self.rownum > 1:
             self.rownum -= 1
-            forgets = [0, 2, 3]
+            forgets = [0, 2, 3, 4]
             for x in forgets:
                 self.branches[-1][x].grid_remove()
             del self.branches[-1]
