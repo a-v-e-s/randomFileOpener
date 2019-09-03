@@ -73,12 +73,18 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
     if sys.platform.lower().startswith('win'):
         try:
             os.startfile(target)
+        except OSError:
+            text = ('Failed to open ' + target + '\nNo application associated '
+                'with files ending in .' + target.split('.')[-1]
+            )
+            if interface not in [None, 'cli']:
+                interface.warning(notice, text, 2)
+            else:
+                print(text)
         except Exception:
             if interface not in [None, 'cli']:
-                interface.warning(notice, None, 2)
+                interface.warning(notice, sys.exc_info(), 2)
             else:
-                print('\nFailed to open ' + target)
-                print('Your version of Windows or Python may not be supported')
                 print(sys.exc_info())
     elif sys.platform.lower().startswith('dar'):
         # I haven't tested on any Macs yet. This *might* work:

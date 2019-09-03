@@ -79,7 +79,8 @@ class Gui():
         self.filetypes.pack(ipadx=10, ipady=5)
 
         # Create a Frame to notify the user of any problems that occur:
-        self.problems = tk.Frame(self.root).pack(ipadx=10)
+        self.problems = tk.Frame(self.root)
+        self.problems.pack(ipadx=10)
         self.notice = tk.Label(self.problems)
         self.notice.pack()
 
@@ -171,11 +172,11 @@ class Gui():
         self.notice.config(text='')
 
 
-    def warning(self, notice, x, type=0):
+    def warning(self, notice, problem, type=0):
         # If there was a problem, inform the user of what went wrong;
         # Type 1 configures the notice widget of the Gui, all others create a separate window:
         if type == 1:
-            self.notice.config(text=''.join(x), fg='red')
+            self.notice.config(text=''.join(problem), fg='red')
             return None
 
         failure = tk.Toplevel()
@@ -183,24 +184,21 @@ class Gui():
         if type == 2:
             reason = tk.Label(
                 failure, fg='red',
-                text='Windows failed to open the file.\n'
-                'Your version of Windows or Python may be incompatible'
+                text=str(problem)
             )
-            reason.pack()
         if type == 3:
             reason = tk.Label(
                 failure, fg='red',
                 text='Mac failed to open the file.\n'
                 'This program has not yet been tested on Macs.'
             )
-            reason.pack()
         if type == 4:
             reason = tk.Label(
                 failure, fg='red',
                 text='Failed to open file.\nProgram requires xdg-open.\n'
                 'Installing the xdg-utils package may solve this problem'
             )
-            reason.pack()
+        reason.pack()
         quit_warn = tk.Button(failure, text='OK', command=failure.destroy)
         quit_warn.pack()
         failure.mainloop()
