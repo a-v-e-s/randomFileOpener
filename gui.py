@@ -1,10 +1,11 @@
+"""
+This module contains everything needed for Random File Opener's graphical interface.
+If run as the top level module it initializes the gui.
+It has no real utility otherwise.
+"""
+
 import os
-import sys
-import subprocess
-import random
-import functools
 import threading
-import argparse
 import tkinter as tk
 from tkinter.filedialog import askdirectory
 import rando
@@ -12,184 +13,201 @@ import rando
 
 class Gui():
     def __init__(self):
-        # Build and launch the GUI
-        Root = tk.Tk()
-        Root.title('Random File Opener')
-
+        # Initialize the Tk widget, rownum variable and the psbl_brnchs list for the class
+        self.root = tk.Tk()
+        self.root.title('Random File Opener')
         self.rownum = 0
-        self.branches = []
+        self.psbl_brnchs = []
 
-        self.Tree = tk.Frame(Root)
-        dir_label = tk.Label(
-            self.Tree, text='Enter the path of a folder to choose from:',
+        # Create the tree frame, and create its first branch:
+        self.tree = tk.Frame(self.root)
+        self.dir_label = tk.Label(
+            self.tree, text='Enter the path of a folder to choose from:',
             font=('tk.TkDefaultFont', 12)
         )
-        dir_label.grid(row=self.rownum)
-        self.add_branch()
-        self.Tree.pack(ipadx=10, ipady=5)
-        
-        Top = tk.Frame(Root)
-        Adder = tk.Button(Top, text='Add Folder', font=('tk.TkDefaultFont', 12), command=lambda: self.add_branch())
-        Adder.grid(row=1, column=1)
-        self.Pruner = tk.Button(
-            Top, text='Remove Previous', font=('tk.TkDefaultFont', 12), state='disabled',
+        self.dir_label.grid(row=self.rownum)
+        self.add_limb()
+        self.tree.pack(ipadx=10, ipady=5)
+
+        # Create the (tree)top Frame, and the adder and pruner buttons:
+        self.top = tk.Frame(self.root)
+        self.adder = tk.Button(
+            self.top, text='Add Folder', font=('tk.TkDefaultFont', 12),
+            command=lambda: self.add_limb()
+        )
+        self.adder.grid(row=1, column=1)
+        self.pruner = tk.Button(
+            self.top, text='Remove Previous', font=('tk.TkDefaultFont', 12), state='disabled',
             command=lambda: self.prune()
         )
-        self.Pruner.grid(row=1, column=2)
-        Top.pack(ipadx=10, ipady=10)
+        self.pruner.grid(row=1, column=2)
+        self.top.pack(ipadx=10, ipady=10)
 
-        Filetypes = tk.Frame(Root)
-        exts = tk.Label(
-            Filetypes, text='Choose whether to exclude certain file based on type:',
+        # Create the filetypes Frame for excluding or including certain filetypes:
+        self.filetypes = tk.Frame(self.root)
+        self.incls = tk.Label(
+            self.filetypes, text='Choose whether to exclude certain file based on type:',
             font=('tk.TkDefaultFont', 12)
         )
-        exts.grid(row=0)
-        Inclusivity = tk.IntVar()
-        Extensions = tk.Entry(Filetypes, text='File extensions', width=25, state='disabled')
-        all_incl = tk.Radiobutton(
-            Filetypes, text='All-Inclusive', value=2, variable=Inclusivity,
-            command=(lambda x=Extensions: x.config(state='disabled'))
+        self.incls.grid(row=0)
+        self.inclusivity = tk.IntVar()
+        self.extensions = tk.Entry(
+            self.filetypes, text='File extensions', width=25, state='disabled'
         )
-        all_incl.grid(row=1)
-        exclusive = tk.Radiobutton(
-            Filetypes, text='Exclude:', value=1, variable=Inclusivity,
-            command=(lambda x=Extensions: x.config(state='normal'))
+        self.all_incl = tk.Radiobutton(
+            self.filetypes, text='All-Inclusive', value=2, variable=self.inclusivity,
+            command=(lambda x=self.extensions: x.config(state='disabled'))
         )
-        exclusive.grid(row=2)
-        very_exclusive = tk.Radiobutton(
-            Filetypes, text='Only Include:', value=0, variable=Inclusivity,
-            command=(lambda x=Extensions: x.config(state='normal'))
+        self.all_incl.grid(row=1)
+        self.exclusive = tk.Radiobutton(
+            self.filetypes, text='Exclude:', value=1, variable=self.inclusivity,
+            command=(lambda x=self.extensions: x.config(state='normal'))
         )
-        very_exclusive.grid(row=3)
-        Inclusivity.set(2)
-        Extensions.grid(row=4)
-        Filetypes.pack(ipadx=10, ipady=5)
+        self.exclusive.grid(row=2)
+        self.only_include = tk.Radiobutton(
+            self.filetypes, text='Only Include:', value=0, variable=self.inclusivity,
+            command=(lambda x=self.extensions: x.config(state='normal'))
+        )
+        self.only_include.grid(row=3)
+        self.inclusivity.set(2)
+        self.exts = tk.Label(
+            self.filetypes, font=('tk.TkDefaultFont', 11),
+            text='Enter the file extensions here if your search is not all-inclusive:'
+        )
+        self.exts.grid(row=4)
+        self.extensions.grid(row=5)
+        self.filetypes.pack(ipadx=10, ipady=5)
 
-        Problems = tk.Frame(Root).pack(ipadx=10)
-        Notice = tk.Label(Problems)
-        Notice.pack()
+        # Create a Frame to notify the user of any problems that occur:
+        self.problems = tk.Frame(self.root).pack(ipadx=10)
+        self.notice = tk.Label(self.problems)
+        self.notice.pack()
 
-        Buttons = tk.Frame(Root)
-        go = tk.Button(
-            Buttons, text='Go!', command=(lambda: threading.Thread(
-                None, self.go, args=(
-                    self.branches, Inclusivity.get(), Extensions.get().split(), Notice
-                )
-            ).run())
-        )
-        go.grid(row=0, column=1)
-        clear = tk.Button(
-            Buttons, text='Clear All',
-            command=functools.partial(self.clear, Inclusivity, Extensions)
-        )
-        clear.grid(row=0, column=2)
-        hlp = tk.Button(Buttons, text='Help', command=self.help_)
-        hlp.grid(row=0, column=3)
-        qit = tk.Button(Buttons, text='Quit', command=Root.destroy)
-        qit.grid(row=0, column=4)
-        Buttons.pack(ipadx=10, ipady=5)
-        Root.bind(
-            sequence='<Return>', func=(
-                lambda x: threading.Thread(None, self.go, args=(
-                    self.branches, Inclusivity.get(), Extensions.get().split(), Notice
-                )).run()
+        # Create the control buttons:
+        self.buttons = tk.Frame(self.root)
+        self.goh = tk.Button(
+            self.buttons, text='Go!', command=(
+                lambda: threading.Thread(None, self.go).run()
             )
         )
-        Root.bind(sequence='<Control-KeyPress-n>', func=(lambda x: self.add_branch()))
-        Root.bind(sequence='<Control-KeyPress-d>', func=(lambda x: self.prune()))
-        Root.bind(sequence='<Control-KeyPress-h>', func=(lambda x: self.help_()))
-        Root.bind(sequence='<Control-KeyPress-q>', func=(lambda x: Root.destroy()))
-        Root.bind(sequence='<Control-KeyPress-l>', func=(lambda x: self.clear(Inclusivity, Extensions)))
-        Root.mainloop()
+        self.goh.grid(row=0, column=1)
+        self.clr = tk.Button(
+            self.buttons, text='Clear All',
+            command=self.clear
+        )
+        self.clr.grid(row=0, column=2)
+        self.hlp = tk.Button(self.buttons, text='Help', command=self.help_)
+        self.hlp.grid(row=0, column=3)
+        self.qit = tk.Button(self.buttons, text='Quit', command=self.root.destroy)
+        self.qit.grid(row=0, column=4)
+        self.buttons.pack(ipadx=10, ipady=5)
+
+        # Bind certain keys to certain functions:
+        self.root.bind(
+            sequence='<Return>', func=(lambda x: threading.Thread(None, self.go).run())
+        )
+        self.root.bind(sequence='<Control-KeyPress-n>', func=(lambda x: self.add_limb()))
+        self.root.bind(sequence='<Control-KeyPress-d>', func=(lambda x: self.prune()))
+        self.root.bind(sequence='<Control-KeyPress-h>', func=(lambda x: self.help_()))
+        self.root.bind(sequence='<Control-KeyPress-q>', func=(lambda x: self.root.destroy()))
+        self.root.bind(sequence='<Control-KeyPress-l>', func=(lambda x: self.clear()))
+
+        # Start the Gui:
+        self.root.mainloop()
 
 
-    def add_branch(self):
-        # Add a tk.Frame called Branch with fields for user to fill out
+    def add_limb(self):
+        # Add a tk.Frame called limb with fields for user to fill out
+        # Increase the rownum, Initialize the Depth Variable:
         self.rownum += 1
-        Branch = tk.Frame(self.Tree)
-        Depth = tk.IntVar()
+        self.limb = tk.Frame(self.tree)
+        self.depth = tk.IntVar()
 
-        depth = tk.Checkbutton(
-            Branch, text='Search Sub-Folders?', variable=Depth, onvalue=1, offvalue=0
+        # Create all the widgets the user will interact with:
+        self.dpth = tk.Checkbutton(
+            self.limb, text='Search Sub-Folders?', variable=self.depth, onvalue=1, offvalue=0
         )
-        depth.grid(row=self.rownum, column=0)
-        Entry = tk.Entry(Branch, width=50)
-        Entry.grid(row=self.rownum, column=1)
-        Entry.focus_set()
-        browse = tk.Button(
-            Branch, text='Browse', command=(
-                lambda x=Entry:[x.delete(0, len(x.get())), x.insert(0, askdirectory())]
+        self.dpth.grid(row=0, column=0)
+        self.entry = tk.Entry(self.limb, width=50)
+        self.entry.grid(row=0, column=1)
+        self.entry.focus_set()
+        self.browse = tk.Button(
+            self.limb, text='Browse', command=(
+                lambda x=self.entry:[x.delete(0, len(x.get())), x.insert(0, askdirectory())]
             )
         )
-        browse.grid(row=self.rownum, column=2)
-        Branch.grid(row=self.rownum)
-        self.branches.append((Entry, Depth, depth, browse, Branch))
+        self.browse.grid(row=0, column=2)
+        self.limb.grid(row=self.rownum)
+        self.psbl_brnchs.append((self.entry, self.depth, self.dpth, self.browse, self.limb))
 
+        # If this is not the first limb, activate the pruner button:
         if self.rownum > 1:
-            self.Pruner.configure(state='active')
+            self.pruner.configure(state='active')
 
 
     def prune(self):
-        # Move up one row and delete the previous Entry
+        # Move up one row, remove all widgets from the grid, then delete the limb:
         if self.rownum > 1:
             self.rownum -= 1
-            forgets = [0, 2, 3, 4]
-            for x in forgets:
-                self.branches[-1][x].grid_remove()
-            del self.branches[-1]
+            remove_these = [0, 2, 3, 4]
+            for x in remove_these:
+                self.psbl_brnchs[-1][x].grid_remove()
+            del self.psbl_brnchs[-1]
         if self.rownum == 1:
-            self.Pruner.configure(state='disabled')
+            self.pruner.configure(state='disabled')
 
 
-    def clear(self, Inclusivity, Extensions):
-        # Clear/Reset all fields
-        for x in range(1, len(self.branches)):
+    def clear(self):
+        # Reset/Delete all fields:
+        for x in range(1, len(self.psbl_brnchs)):
             self.prune()
-        x = self.branches[0]
+        x = self.psbl_brnchs[0]
         x[0].delete(0, len(x[0].get()))
         x[1].set(0)
-        Inclusivity.set(2)
-        Extensions.config(state='normal')
-        Extensions.delete(0, len(Extensions.get()))
-        Extensions.config(state='disabled')
+        self.inclusivity.set(2)
+        self.extensions.config(state='normal')
+        self.extensions.delete(0, len(self.extensions.get()))
+        self.extensions.config(state='disabled')
+        self.notice.config(text='')
 
 
-    def warning(self, Notice, x, type=0):
-        # If there was a problem, inform the user of what went wrong
+    def warning(self, notice, x, type=0):
+        # If there was a problem, inform the user of what went wrong;
+        # Type 1 configures the notice widget of the Gui, all others create a separate window:
         if type == 1:
-            Notice.config(text=''.join(x), fg='red')
+            self.notice.config(text=''.join(x), fg='red')
             return None
-        else:
-            Failure = tk.Toplevel()
-            Failure.title('Failed to open file')
+
+        failure = tk.Toplevel()
+        failure.title('Failed to open file')
         if type == 2:
             reason = tk.Label(
-                Failure, fg='red',
+                failure, fg='red',
                 text='Windows failed to open the file.\n'
                 'Your version of Windows or Python may be incompatible'
             )
             reason.pack()
         if type == 3:
             reason = tk.Label(
-                Failure, fg='red',
+                failure, fg='red',
                 text='Mac failed to open the file.\n'
                 'This program has not yet been tested on Macs.'
             )
             reason.pack()
         if type == 4:
             reason = tk.Label(
-                Failure, fg='red',
+                failure, fg='red',
                 text='Failed to open file.\nProgram requires xdg-open.\n'
                 'Installing the xdg-utils package may solve this problem'
             )
-        reason.pack()
-        quit_warn = tk.Button(Failure, text='OK', command=Failure.destroy)
+            reason.pack()
+        quit_warn = tk.Button(failure, text='OK', command=failure.destroy)
         quit_warn.pack()
-        Failure.mainloop()
+        failure.mainloop()
 
 
     def help_(self):
-        # Display basic usage instructions in a popup window
+        # Display basic usage instructions in a popup window:
         help_ = tk.Toplevel()
         help_.title('Help')
         help_text = tk.Label(
@@ -210,7 +228,14 @@ class Gui():
             'Music: .m4a .mid .mp3 .mpa .wav .wma\n\n'
             'Click the "Go!" button to run the search,\n'
             '"Clear All" to clear all fields,\n'
-            'and "Exit" to close the program.')
+            'and "Exit" to close the program.\n\n'
+            'Keyboard Shortcuts:\n'
+            '<Return> runs the program\'s main function.\n'
+            '<Ctrl>+n adds a directory\n'
+            '<Ctrl>+d removes the last directory.\n'
+            '<Ctrl>+l clears all user-supplied information.\n'
+            '<Ctrl>+h displays this help message.\n'
+            '<Ctrl>+q quits the program.')
         help_text.pack(ipadx=15)
         help_quit = tk.Button(help_, text='OK', command=help_.destroy)
         help_quit.pack()
@@ -218,21 +243,26 @@ class Gui():
         help_.mainloop()
 
 
-    def go(self, branches, inclusivity, extensions, Notice):
-        limbs = []
+    def go(self):
+        # Process the entry widgets to ensure they contain valid directories;
+        # Alert user of any invalid input, pass valid input to the rando module:
+        branches = []
         not_dirs = []
-        for x in self.branches:
+        for x in self.psbl_brnchs:
             psbl_dir = x[0].get()
             if os.path.isdir(psbl_dir):
-                limbs.append((psbl_dir, x[1]))
+                branches.append((psbl_dir, x[1]))
             else:
                 not_dirs.append('Not a directory: ' + psbl_dir + '\n')
 
         if len(not_dirs) > 0:
-            self.warning(Notice, not_dirs, type=1)
+            self.warning(self.notice, not_dirs, type=1)
 
-        rando.rando(limbs, inclusivity, extensions, self, Notice)
+        rando.rando(
+            branches, self.inclusivity.get(), self.extensions.get().split(), self, self.notice
+        )
 
 
 if __name__ == '__main__':
+    # If this is the top-level module, initialize the Gui:
     Gui()
