@@ -174,30 +174,20 @@ class Gui():
 
     def warning(self, notice, problem, type=0):
         # If there was a problem, inform the user of what went wrong;
-        # Type 1 configures the notice widget of the Gui, all others create a separate window:
+        # Type 1 configures the notice widget of the Gui.
         if type == 1:
             self.notice.config(text=''.join(problem), fg='red')
             return None
 
+        # Other error types create their own popup window describing the issue.
         failure = tk.Toplevel()
         failure.title('Failed to open file')
         if type == 2:
-            reason = tk.Label(
-                failure, fg='red',
-                text=str(problem)
-            )
+            reason = tk.Label(failure, fg='red', text=str(problem))
         if type == 3:
-            reason = tk.Label(
-                failure, fg='red',
-                text='Mac failed to open the file.\n'
-                'This program has not yet been tested on Macs.'
-            )
+            reason = tk.Label(failure, fg='red', text=str(problem))
         if type == 4:
-            reason = tk.Label(
-                failure, fg='red',
-                text='Failed to open file.\nProgram requires xdg-open.\n'
-                'Installing the xdg-utils package may solve this problem'
-            )
+            reason = tk.Label(failure, fg='red', text=str(problem))
         reason.pack()
         quit_warn = tk.Button(failure, text='OK', command=failure.destroy)
         quit_warn.pack()

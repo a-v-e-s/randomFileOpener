@@ -83,31 +83,35 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
                 print(text)
         except Exception:
             if interface not in [None, 'cli']:
-                interface.warning(notice, sys.exc_info(), 2)
+                text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
+                interface.warning(notice, text, 2)
             else:
-                print(sys.exc_info())
+                print(text)
     elif sys.platform.lower().startswith('dar'):
         # I haven't tested on any Macs yet. This *might* work:
         try:
             subprocess.run(['open', target])
         except Exception:
+            text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
             if interface not in [None, 'cli']:
-                interface.warning(notice, None, 3)
+                interface.warning(notice, text, 3)
             else:
-                print('\nFailed to open ' + target)
-                print('This program has not yet been tested on Macs')
-                print(sys.exc_info())
+                print(text)
     else:
         try:
-            subprocess.run(['xdg-open', target])
+            if subprocess.call(['xdg-open', target]) != 0:
+                raise Exception
         except Exception:
+            text = ('Failed to open ' + target +
+                '\nThis program requires xdg-open to be installed.'
+                '\nInstalling the xdg-utils package may resolve the problem.' +
+                '\nOr it may be that there is no program registered to open files ending with .' +
+                target.split('.')[-1] + ' by default.'
+            )
             if interface not in [None, 'cli']:
-                interface.warning(notice, None, 4)
+                interface.warning(notice, text, 4)
             else:
-                print('\nFailed to open ' + target)
-                print('This program requires xdg-open to be installed to work')
-                print('Installing the xdg-utils package may solve the problem.')
-                print(sys.exc_info())
+                print(text)
 
 if __name__ == '__main__':
     import cli
