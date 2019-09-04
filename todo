@@ -1,2 +1,5 @@
 Improve help window to show links to source code and license
 Make sure to inform user that there is no warranty for GNU GPLv3 software.
+
+mash rando.py into gui.py so it can be turned into a standalone application with platypus.
+remember to use the python interpreter returned by "$ which python3" with platypus to build the script
