@@ -39,7 +39,7 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
 
     # Get full paths to all files from all real directories:
     for limb in limbs:
-        if limb[1]:
+        if limb[1].get():
             for root, subdirectories, collections in os.walk(limb[0]):
                 for item in collections:
                     files.append(os.path.join(root, item))
@@ -82,26 +82,33 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
             else:
                 print(text)
         except Exception:
+            text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
             if interface not in [None, 'cli']:
-                text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
                 interface.warning(notice, text, 2)
             else:
                 print(text)
     elif sys.platform.lower().startswith('dar'):
         # I haven't tested on any Macs yet. This *might* work:
         try:
-            subprocess.run(['open', target])
+            if subprocess.call(['open', target]) != 0:
+                raise OSError
+        except OSError:
+            text = 'No application knows how to open ' + target.split('/')[-1] 
+            if interface not in [None, 'cli']:
+                interface.warning(notice, text, 3)
+            else:
+                print(text)
         except Exception:
             text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
             if interface not in [None, 'cli']:
-                interface.warning(notice, text, 3)
+                interface.warning(notice, text, 2)
             else:
                 print(text)
     else:
         try:
             if subprocess.call(['xdg-open', target]) != 0:
-                raise Exception
-        except Exception:
+                raise OSError
+        except OSError:
             text = ('Failed to open ' + target +
                 '\nThis program requires xdg-open to be installed.'
                 '\nInstalling the xdg-utils package may resolve the problem.' +
@@ -110,6 +117,12 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
             )
             if interface not in [None, 'cli']:
                 interface.warning(notice, text, 4)
+            else:
+                print(text)
+        except Exception:
+            text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
+            if interface not in [None, 'cli']:
+                interface.warning(notice, text, 2)
             else:
                 print(text)
 
