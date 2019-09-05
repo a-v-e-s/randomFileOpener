@@ -10,7 +10,6 @@ import subprocess
 import random
 import tkinter as tk
 from tkinter.filedialog import askdirectory
-import rando
 
 
 class Gui():
