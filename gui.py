@@ -6,6 +6,8 @@ It has no real utility otherwise.
 
 import os
 import threading
+import subprocess
+import random
 import tkinter as tk
 from tkinter.filedialog import askdirectory
 import rando
@@ -246,11 +248,51 @@ class Gui():
                 branches.append((psbl_dir, x[1].get()))
             else:
                 not_dirs.append('Not a directory: ' + psbl_dir + '\n')
-
         if len(not_dirs) > 0:
             self.warning(self.notice, not_dirs, type=1)
+        #rando.rando(branches, self.inclusivity.get(), self.extensions.get().split(), self)
 
-        rando.rando(branches, self.inclusivity.get(), self.extensions.get().split(), self)
+        files = []
+        options = []
+        for limb in branches:
+            if limb[1]:
+                for root, subdirectories, collections in os.walk(limb[0]):
+                    for item in collections:
+                        files.append(os.path.join(root, item))
+            else:
+                for x in os.listdir(limb[0]):
+                    y = os.path.join(limb[0], x)
+                    if os.path.isfile(y):
+                        files.append(y)
+
+        #eextees = self.extensions.get().split()
+        inclusivity = self.inclusivity.get()
+        extensions = self.extensions.get().split()
+        if inclusivity == 2:
+            options = files
+        elif inclusivity == 1:
+            for f in files:
+                index = 0
+                for excluded in extensions:
+                    index += 1
+                    if f.lower().endswith(excluded.lower()):
+                        break
+                    if index == len(extensions):
+                        options.append(f)
+        else:
+            for f in files:
+                for included in extensions:
+                    if f.lower().endswith(included.lower()):
+                        options.append(f)
+                        break
+
+        target = random.choice(options)
+        try:
+            if subprocess.call(['open', target]) != 0:
+                raise OSError
+        except OSError:
+            text = 'No application knows how to open ' + target.split('/')[-1] 
+            self.warning(self.notice, text, 3)
 
 
 if __name__ == '__main__':
