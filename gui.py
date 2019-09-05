@@ -199,7 +199,11 @@ class Gui():
         help_ = tk.Toplevel()
         help_.title('Help')
         help_text = tk.Label(
-            help_, text='Usage:\n\n'
+            help_, text='Important:\n'
+            'Source code: https://github.com/a-v-e-s/randomFileOpener\n'
+            'License: https://github.com/a-v-e-s/randomFileOpener/blob/master/LICENSE.md\n'
+            'Random File Opener is open source software and comes with No Warranty!\n\n'
+            'Usage:\n\n'
             'Enter the full absolute paths of folders you want to pick from in the top section.\n'
             'In Windows this usually begins with C:\\ \n'
             'In Mac OS and Linux it begins with / \n'
@@ -239,16 +243,14 @@ class Gui():
         for x in self.psbl_brnchs:
             psbl_dir = x[0].get()
             if os.path.isdir(psbl_dir):
-                branches.append((psbl_dir, x[1]))
+                branches.append((psbl_dir, x[1].get()))
             else:
                 not_dirs.append('Not a directory: ' + psbl_dir + '\n')
 
         if len(not_dirs) > 0:
             self.warning(self.notice, not_dirs, type=1)
 
-        rando.rando(
-            branches, self.inclusivity.get(), self.extensions.get().split(), self, self.notice
-        )
+        rando.rando(branches, self.inclusivity.get(), self.extensions.get().split(), self)
 
 
 if __name__ == '__main__':

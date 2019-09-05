@@ -1,7 +1,7 @@
 """
-Finds files in directories included in the branches argument, which is to be a list of tuples.
-The first item of the branches tuple is to be a string containing the full path to the directory,
-the second item of the branches tuple is to be either 0 or 1 to indicate whether (1) or not (0) to
+Finds files in directories included in the psbl_brnchs argument, which is to be a list of tuples.
+The first item of the psbl_brnchs tuple is to be a string containing the full path to the directory,
+the second item of the psbl_brnchs tuple is to be either 0 or 1 to indicate whether (1) or not (0) to
 search the directory's subdirectories for files.
 
 Inclusivity is to equal either 2, 1, or 0. 
@@ -9,9 +9,11 @@ A value of 2 indicates that all filetypes are to be included.
 A value of 1 indicates that all files with extensions in the extensions list are to be excluded.
 A value of 0 indicates that only files with extensions in the extensions list are to be included.
 
-The interface and notice arguments are used internally and supplied by gui.py and cli.py if needed.
+The interface argument is used internally and supplied by gui.py or cli.py if needed.
 
-It is simpler to run gui.py or cli.py as top level modules than to import rando manually.
+It is simpler to run gui.py or cli.py as top level modules than to import rando and use its
+function manually.
+
 If run as a top level module it simply imports cli.py and runs as though the user had run cli.py.
 """
 
@@ -21,25 +23,25 @@ import subprocess
 import random
 
 
-def rando(branches, inclusivity, extensions, interface=None, notice=None):
+def rando(psbl_brnchs, inclusivity, extensions, interface=None):
     # Initialize a list for all files (files), another for files to choose from (options):
     files = []
     options = []
 
     # Check all entries to verify they are real directories, unless gui already did this:
-    limbs = []
+    branches = []
     if interface == None:
-        for x in branches:
+        for x in psbl_brnchs:
             if os.path.isdir(x[0]):
-                limbs.append(x)
+                branches.append(x)
             else:
                 print('\n' + x + ' is not a directory!\n')
     else:
-        limbs = branches
+        branches = psbl_brnchs
 
     # Get full paths to all files from all real directories:
-    for limb in limbs:
-        if limb[1].get():
+    for limb in branches:
+        if limb[1]:
             for root, subdirectories, collections in os.walk(limb[0]):
                 for item in collections:
                     files.append(os.path.join(root, item))
@@ -78,30 +80,17 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
                 'with files ending in .' + target.split('.')[-1]
             )
             if interface not in [None, 'cli']:
-                interface.warning(notice, text, 2)
-            else:
-                print(text)
-        except Exception:
-            text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
-            if interface not in [None, 'cli']:
-                interface.warning(notice, text, 2)
+                interface.warning(interface.notice, text, 2)
             else:
                 print(text)
     elif sys.platform.lower().startswith('dar'):
-        # I haven't tested on any Macs yet. This *might* work:
         try:
             if subprocess.call(['open', target]) != 0:
                 raise OSError
         except OSError:
             text = 'No application knows how to open ' + target.split('/')[-1] 
             if interface not in [None, 'cli']:
-                interface.warning(notice, text, 3)
-            else:
-                print(text)
-        except Exception:
-            text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
-            if interface not in [None, 'cli']:
-                interface.warning(notice, text, 2)
+                interface.warning(interface.notice, text, 3)
             else:
                 print(text)
     else:
@@ -116,13 +105,7 @@ def rando(branches, inclusivity, extensions, interface=None, notice=None):
                 target.split('.')[-1] + ' by default.'
             )
             if interface not in [None, 'cli']:
-                interface.warning(notice, text, 4)
-            else:
-                print(text)
-        except Exception:
-            text = 'An unknown Exception occurred:\n' + str(sys.exc_info())
-            if interface not in [None, 'cli']:
-                interface.warning(notice, text, 2)
+                interface.warning(interface.notice, text, 4)
             else:
                 print(text)
 
