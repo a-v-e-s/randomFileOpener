@@ -1,7 +1,7 @@
 <p>Do you have a large media library that you would enjoy more if you chould open files at random?<br/>
 If so, this might be perfect for you.<br/>
 It requires: python 3.X, Windows, or Unix-like OS with xdg-open<br/>
-This hasn't been tested on a Mac yet, but might work anyways.<br/></p>
+See the Mac branch for a version that has been tested on Mac OSX<br/></p>
 
 <p>Open the GUI from the command line with:<br/>
 &nbsp;&nbsp;$ python3 /path/to/gui.py<br/>
