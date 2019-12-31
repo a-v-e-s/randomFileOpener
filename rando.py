@@ -72,6 +72,8 @@ def rando(psbl_brnchs, inclusivity, extensions, interface=None):
 
     # Choose at random from the list of options and open it with the proper method:
     target = random.choice(options)
+    if interface == 'cli':
+        print(target)
     if sys.platform.lower().startswith('win'):
         try:
             os.startfile(target)
@@ -108,6 +110,7 @@ def rando(psbl_brnchs, inclusivity, extensions, interface=None):
                 interface.warning(interface.notice, text, 4)
             else:
                 print(text)
+    
 
 if __name__ == '__main__':
     import cli
