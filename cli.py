@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 cli.py is designed for command-line use:
 

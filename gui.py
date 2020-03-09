@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 This module contains everything needed for Random File Opener's graphical interface.
 If run as the top level module it initializes the gui.
