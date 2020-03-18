@@ -54,21 +54,25 @@ class Gui():
         self.incls.grid(row=0)
         self.inclusivity = tk.IntVar()
         self.extensions = tk.Entry(
-            self.filetypes, text='File extensions', width=25, state='disabled'
+            self.filetypes, text='File extensions', width=25, state='disabled',
+            fg='black', bg='white'
         )
         self.all_incl = tk.Radiobutton(
             self.filetypes, text='All-Inclusive', value=2, variable=self.inclusivity,
-            command=(lambda x=self.extensions: x.config(state='disabled'))
+            command=(lambda x=self.extensions: x.config(state='disabled')),
+            bg='white', fg='black'
         )
         self.all_incl.grid(row=1)
         self.exclusive = tk.Radiobutton(
             self.filetypes, text='Exclude:', value=1, variable=self.inclusivity,
-            command=(lambda x=self.extensions: x.config(state='normal'))
+            command=(lambda x=self.extensions: x.config(state='normal')),
+            bg='white', fg='black'
         )
         self.exclusive.grid(row=2)
         self.only_include = tk.Radiobutton(
             self.filetypes, text='Only Include:', value=0, variable=self.inclusivity,
-            command=(lambda x=self.extensions: x.config(state='normal'))
+            command=(lambda x=self.extensions: x.config(state='normal')),
+            bg='white', fg='black'
         )
         self.only_include.grid(row=3)
         self.inclusivity.set(2)
@@ -128,10 +132,11 @@ class Gui():
 
         # Create all the widgets the user will interact with:
         self.dpth = tk.Checkbutton(
-            self.limb, text='Search Sub-Folders?', variable=self.depth, onvalue=1, offvalue=0
+            self.limb, text='Search Sub-Folders?', variable=self.depth, onvalue=1, offvalue=0,
+            bg='white', fg='black'
         )
         self.dpth.grid(row=0, column=0)
-        self.entry = tk.Entry(self.limb, width=50)
+        self.entry = tk.Entry(self.limb, width=50, bg='white', fg='black')
         self.entry.grid(row=0, column=1)
         self.entry.focus_set()
         self.browse = tk.Button(
